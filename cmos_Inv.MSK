@@ -1,0 +1,34 @@
+VERSION 01-Nov-25 12:31:37 PM
+FIG #C:\Users\Ritesh\Downloads\microwind v3.2\Practicals\Prac6_nand_nor_inv\cmos_Inv.MSK
+BB(10,14,71,56)
+SIMU #5.00
+REC(10,34,24,22,NW)
+REC(23,40,5,10,DP)
+REC(16,40,5,10,DP)
+REC(23,18,5,5,DN)
+REC(16,18,5,5,DN)
+REC(25,41,2,2,CO)
+REC(17,19,2,2,CO)
+REC(25,47,2,2,CO)
+REC(17,41,2,2,CO)
+REC(25,19,2,2,CO)
+REC(17,47,2,2,CO)
+REC(21,14,2,39,PO)
+REC(24,18,4,32,ME)
+REC(16,18,4,4,ME)
+REC(28,24,5,3,ME)
+REC(16,40,4,10,ME)
+REC(21,40,2,10,DP)
+REC(21,18,2,5,DN)
+RLCC 31 25 36 25 1 #0.001
+TITLE 18 20  #Vss
+$0 1000 0 
+TITLE 18 48  #Vdd
+$1 1000 0 
+TITLE 26 26  #Y
+$v 1000 0 
+TITLE 30 53  #Vdd
+$1 1000 0 
+TITLE 22 52  #A
+$c 1000 0 0.1900 0.2000 0.3900 0.4000 
+FFIG C:\Users\Ritesh\Downloads\microwind v3.2\Practicals\Prac6_nand_nor_inv\cmos_Inv.MSK
