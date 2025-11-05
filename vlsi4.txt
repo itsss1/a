@@ -1,0 +1,149 @@
+Keypad Controller
+CODE
+entity keypad1 is
+port(clk:in std_logic;
+rl:in std_logic_vector(3 downto 0);
+sl:out std_logic_vector(3 downto 0);
+segen_o:out std_logic_vector(6 downto 0);
+display_en:out std_logic_vector(5 downto0));
+end keypad1;
+architecture Behavioral of keypad1 is
+	signal sl_s:std_logic_vector(3 downto 0):=”1110”;
+	signal segen:std_logic_vector(6 downto 0):=”1111111”;
+begin
+process(clk, sl_s)
+begin
+if rising_edge(clk) then
+sl_s(3)<=sl_s(2);
+sl_s(2)<=sl_s(1);
+sl_s(1)<=sl_s(0);
+sl_s(0)<=sl_s(3);
+end if;
+end process;
+process(clk, rl, sl_s)
+begin
+if rising_edge(clk) then
+	case rl is
+	when “0111”=> if sl_s=”0111” then segen<=”0000001”;
+			elsif sl_s=”1011” then segen<=”1001111”;
+		 	elsif sl_s=”1101” then segen<=”0010010”;
+			elsif sl_s=”1110” then segen<=”0000110”;
+			end if;
+          	when “1011”=> if sl_s=”0111” then segen<=”1001100”;
+			elsif sl_s=”1011” then segen<=”0100100”;
+		 	elsif sl_s=”1101” then segen<=”0100000”;
+			elsif sl_s=”1110” then segen<=”0001111”;
+			end if;
+when “1101”=> if sl_s=”0111” then segen<=”0000000”;
+			elsif sl_s=”1011” then segen<=”0001100”;
+		 	elsif sl_s=”1101” then segen<=”0001000”;
+			elsif sl_s=”1110” then segen<=”1100000”;
+			end if;
+when “0111”=> if sl_s=”0111” then segen<=”0110001”;
+			elsif sl_s=”1011” then segen<=”1000010”;
+		 	elsif sl_s=”1101” then segen<=”0110000”;
+			elsif sl_s=”1110” then segen<=”0111000”;
+			end if;
+	when others=> segen<=segen;
+	end case;
+end if;
+end process;
+sl<=sl_s;
+display_en<=”111101”;
+segen_o<=segen;
+end behavioral;
+TESTBENCH
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+entity test is
+end test;
+architecture Behavioral of test is
+
+    component keypad1
+        port (
+            clk        : in  std_logic;
+            rl         : in  std_logic_vector(3 downto 0);
+            sl         : out std_logic_vector(3 downto 0);
+            segen_o    : out std_logic_vector(6 downto 0);
+            display_en : out std_logic_vector(5 downto 0)
+        );
+    end component;
+
+    signal clk_tb        : std_logic := '0';
+    signal rl_tb         : std_logic_vector(3 downto 0) := "1111";  -- no key pressed
+    signal sl_tb         : std_logic_vector(3 downto 0);
+    signal segen_o_tb    : std_logic_vector(6 downto 0);
+    signal display_en_tb : std_logic_vector(5 downto 0);
+
+    constant CLK_PERIOD : time := 10 ns;
+
+begin
+
+    uut: keypad1
+        port map (
+            clk        => clk_tb,
+            rl         => rl_tb,
+            sl         => sl_tb,
+            segen_o    => segen_o_tb,
+            display_en => display_en_tb
+        );
+
+    clk_process : process
+    begin
+        while true loop
+            clk_tb <= '0';
+            wait for CLK_PERIOD / 2;
+            clk_tb <= '1';
+            wait for CLK_PERIOD / 2;
+        end loop;
+    end process clk_process;
+
+    stim_proc : process
+    begin
+        report "Simulation started. Testing keypad scanning...";
+
+        wait for 100 ns;
+        rl_tb <= "0111";  -- simulate pressing key in row 0
+        wait for 1 ms;
+
+        rl_tb <= "1011";  -- simulate pressing key in row 1
+        wait for 1 ms;
+
+        rl_tb <= "1101";  -- simulate pressing key in row 2
+        wait for 1 ms;
+
+        rl_tb <= "1110";  -- simulate pressing key in row 3
+        wait for 1 ms;
+
+        rl_tb <= "1111";  -- no key pressed
+        wait for 1 ms;
+
+        report "Simulation completed. Check waveform for segment outputs.";
+        wait;  -- stop simulation
+    end process stim_proc;
+
+end Behavioral;
+
+UCF
+NET “clk” LOC=”p76”;
+NET “display_en<0>”  LOC= ”p117”;
+NET “display_en <1>”  LOC= ”p119”;
+NET “display_en <2>”  LOC= ”p115”;
+NET “display_en <3>”  LOC= ”p116”;
+NET “display_en <4>”  LOC= ”p114”;
+NET “display_en <5>”  LOC= ”p113”;
+NET “rl<3>”  LOC= ”p189”;
+NET “rl <2>”  LOC= ”p182”;
+NET “rl <1>”  LOC= ”p183”;
+NET “rl <0>”  LOC= ”p180”;
+NET “segen_O<6>”  LOC= ”p120”;
+NET “segen_O <5>”  LOC= ”p124”;
+NET “segen_O <4>”  LOC= ”p123”;
+NET “segen_O <3>”  LOC= ”p126”;
+NET “segen_O <2>”  LOC= ”p125”;
+NET “segen_O <1>”  LOC= ”p130”;
+NET “segen_O <0>”  LOC= ”p128”;
+NET “sl<3>”  LOC= ”p178”;
+NET “sl <2>”  LOC= ”p184”;
+NET “sl <1>”  LOC= ”p185”;
+NET “sl <0>”  LOC= ”p187”;

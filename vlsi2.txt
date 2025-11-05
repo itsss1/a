@@ -1,0 +1,162 @@
+Universal Shift Register
+CODE
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+entity uni_shift1 is
+			port(reset, si, clk, load : in STD_LOGIC;
+			pi :in STD_LOGIC_VECTOR ( 3 downto 0);
+			po: out STD_LOGIC_VECTOR ( 3 downto 0);
+			mode : in STD_LOGIC_VECTOR ( 1 downto 0);
+			so : out STD_LOGIC
+			);
+	end uni_shift1;
+architecture Behavioral of uni_shift1 is
+	signal temp: std_logic_vector(3 downto 0):="0000";
+	signal clk_s: std_logic_vector(23 downto 0):=(others=>'0');
+begin
+--Count&lt;= clk_s(22);
+	Process(clk)
+		Begin
+			If rising_edge (clk) then
+			Clk_s<=clk_s+ '1';
+			End if;
+	End process;--
+	Process(clk_s(22), mode, si, load, reset)
+		Begin
+			If reset='1' then temp<="0000"; po<="0000"; so<='0';
+				Elsif rising_edge(clk_s(22)) then
+			Case mode is
+				--SISO
+				When "00"=> temp(3 downto 1) <= temp(2 downto 0);
+				Temp(0)<=si;
+				so<=temp(3);
+
+				--SIPO
+				When "01"=> temp(0)<=si;
+				temp(3 downto 1) <= temp(2 downto 0);
+				po<=temp;
+
+				--PIPO
+				When "10"=> if load='1' then 
+				temp<=pi;
+				else 
+				po<= temp; 
+				end if;
+				--PISO
+				When "11"=> if(load='1') then
+				Temp(3 downto 0)<=pi(3 downto 0);
+				Else
+				so<=temp(3);
+				temp(3 downto 1)<= temp(2 downto 0);
+				temp(0)<='0';
+
+				end if;
+			when others=> null;
+   			end case;
+			end if;
+	end process;
+end behavioral;
+
+
+TESTBENCH
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+entity test is
+end test;
+architecture Behavioral of test is
+    component uni_shift1
+        port(
+            reset, si, clk, load : in std_logic;
+            pi   : in std_logic_vector(3 downto 0);
+            po   : out std_logic_vector(3 downto 0);
+            mode : in std_logic_vector(1 downto 0);
+            so   : out std_logic
+        );
+    end component;
+    signal clk_tb   : std_logic := '0';
+    signal reset_tb : std_logic := '0';
+    signal si_tb    : std_logic := '0';
+    signal load_tb  : std_logic := '0';
+    signal pi_tb    : std_logic_vector(3 downto 0) := (others => '0');
+    signal po_tb    : std_logic_vector(3 downto 0);
+    signal mode_tb  : std_logic_vector(1 downto 0) := "00";
+    signal so_tb    : std_logic;
+    constant CLK_PERIOD : time := 10 ns;
+begin
+    uut: uni_shift1
+        port map (
+            reset => reset_tb,
+            si    => si_tb,
+            clk   => clk_tb,
+            load  => load_tb,
+            pi    => pi_tb,
+            po    => po_tb,
+            mode  => mode_tb,
+            so    => so_tb
+        );
+    clk_process : process
+    begin
+        while true loop
+            clk_tb <= '0';
+            wait for CLK_PERIOD / 2;
+            clk_tb <= '1';
+            wait for CLK_PERIOD / 2;
+        end loop;
+    end process clk_process;
+    stim_proc : process
+    begin
+        report "Simulation started for Universal Shift Register";
+        reset_tb <= '1';
+        wait for 50 ns;
+        reset_tb <= '0';
+        wait for 50 ns;
+        report "Testing SISO Mode...";
+        mode_tb <= "00";
+        si_tb <= '1';
+        wait for 500 ns;
+        si_tb <= '0';
+        wait for 500 ns;
+        report "Testing SIPO Mode...";
+        mode_tb <= "01";
+        si_tb <= '1';
+        wait for 500 ns;
+        si_tb <= '0';
+        wait for 500 ns;
+        report "Testing PIPO Mode...";
+        mode_tb <= "10";
+        pi_tb <= "1010";
+        load_tb <= '1';
+        wait for 100 ns;
+        load_tb <= '0';
+        wait for 500 ns;
+        report "Testing PISO Mode...";
+        mode_tb <= "11";
+        pi_tb <= "1101";
+        load_tb <= '1';
+        wait for 100 ns;
+        load_tb <= '0';
+        wait for 1 us;
+        report "Simulation completed successfully. Check waveform outputs.";
+        wait;
+    end process stim_proc;
+end Behavioral;
+
+
+UCF
+NET "clk"  LOC= "p181";
+NET "load"  LOC= "p57";
+NET "mode<0>"  LOC= "p52";
+NET "mode<1>"  LOC= "p51";
+NET "pi<0>"  LOC= "p43";
+NET "pi<1>"  LOC= "p42";
+NET "pi<2>"  LOC= "p40";
+NET "pi<3>"  LOC= "p37";
+NET "po<0>"  LOC= "p80";
+NET "po<1>"  LOC= "p79";
+NET "po<2>"  LOC= "p78";
+NET "po<3>"  LOC= "p77";
+NET "reset"  LOC= "p50";
+NET "si"  LOC= "p34";
+NET "so"  LOC= "p58";
